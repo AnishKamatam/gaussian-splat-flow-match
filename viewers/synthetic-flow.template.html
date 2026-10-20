@@ -1,0 +1,69 @@
+<div id="synthetic-flow-viewer">
+  <h3>Synthetic quarry motion · learned before → after</h3>
+  <div class="viz-controls">
+    <label class="form-label">Scene<select class="form-select" id="sf-material"><option value="basalt">Basalt style</option><option value="limestone">Limestone style</option><option value="sandstone">Sandstone style</option></select></label>
+    <label class="form-label">Motion<select class="form-select" id="sf-mode"><option value="predicted">Learned velocity field</option><option value="truth">Prescribed ground truth</option></select></label>
+    <label class="form-check"><input class="form-check-input" type="checkbox" id="sf-vectors" checked><span class="form-check-label">Velocity arrows</span></label>
+  </div>
+  <div id="sf-info" aria-live="polite"></div>
+  <canvas id="sf-canvas" role="img" aria-label="Interactive synthetic quarry point cloud with before-to-after time slider and velocity arrows. Drag to rotate and scroll to zoom.">Synthetic point-cloud trajectories.</canvas>
+  <label class="form-label">Transition time <span id="sf-time-label">0.00 · before</span><input class="form-range" id="sf-time" type="range" min="0" max="1" step="0.01" value="0"></label>
+  <div class="viz-controls">
+    <label class="form-label">Rotation<input class="form-range" id="sf-yaw" type="range" min="-180" max="180" value="25"></label>
+    <label class="form-label">Tilt<input class="form-range" id="sf-pitch" type="range" min="-90" max="90" value="30"></label>
+    <label class="form-label">Zoom<input class="form-range" id="sf-zoom" type="range" min="0.5" max="3" step="0.05" value="1"></label>
+  </div>
+  <div id="sf-metric" class="text-small"></div>
+  <div class="text-small text-muted">Drag to orbit · scroll to zoom · arrows show velocity direction with a common display multiplier.</div>
+  <div class="text-small text-muted">Procedural benchmark, not rock physics. Known collapse conditions and point IDs. Dimensionless coordinates; t ∈ [0,1]. Preview: 600 tracked points plus 1,500 stationary context points of 12,000 per scene; predictions interpolated between 9 ODE states.</div>
+</div>
+<style>
+#synthetic-flow-viewer #sf-canvas{display:block;width:100%;height:420px;touch-action:none;cursor:grab;}
+#synthetic-flow-viewer #sf-canvas:active{cursor:grabbing;}
+#synthetic-flow-viewer #sf-info{margin:12px 0;}
+#synthetic-flow-viewer #sf-metric{margin:8px 0;}
+@media(max-width:450px){#synthetic-flow-viewer #sf-canvas{height:340px;}}
+</style>
+<script>
+(()=>{
+const data=__FLOW_DATA__;
+const root=document.getElementById('synthetic-flow-viewer'),get=id=>root.querySelector('#sf-'+id);
+const canvas=get('canvas'),ctx=canvas.getContext('2d');
+let material='basalt',mode='predicted',time=.5,yaw=25,pitch=30,zoom=1,vectors=true;
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function restore(s){const m=s?.modelContent,p=s?.privateContent;if(m){if(data[m.material])material=m.material;if(['predicted','truth'].includes(m.mode))mode=m.mode;if(Number.isFinite(m.time))time=clamp(m.time,0,1);}if(p){if(Number.isFinite(p.yaw))yaw=clamp(p.yaw,-180,180);if(Number.isFinite(p.pitch))pitch=clamp(p.pitch,-90,90);if(Number.isFinite(p.zoom))zoom=clamp(p.zoom,.5,3);if(typeof p.vectors==='boolean')vectors=p.vectors;}}
+function save(){window.openai?.setWidgetState?.({modelContent:{material,mode,time},privateContent:{yaw,pitch,zoom,vectors}})?.catch(()=>{});}
+function sync(){for(const [key,value]of Object.entries({material,mode,time,yaw,pitch,zoom}))get(key).value=value;get('vectors').checked=vectors;get('time-label').textContent=time.toFixed(2)+(time===0?' · before':time===1?' · after':'');const d=data[material];get('info').textContent=d.name+' · held-out scene '+d.seed+' · '+(mode==='predicted'?'learned motion':'ground-truth motion');get('metric').textContent='Moving-point endpoint error: '+d.error.toFixed(4)+' vs '+d.baseline.toFixed(4)+' for no motion ('+d.improvement.toFixed(1)+'% lower; synthetic units).';}
+function rotate(p){const [x,y,z]=p,a=yaw*Math.PI/180,b=pitch*Math.PI/180,X=x*Math.cos(a)+z*Math.sin(a),Z=-x*Math.sin(a)+z*Math.cos(a);return [X,y*Math.cos(b)-Z*Math.sin(b),y*Math.sin(b)+Z*Math.cos(b)];}
+function interpolate(frames,i,t){const p=t*8,lo=Math.min(Math.floor(p),7),w=p-lo;return frames[lo][i].map((v,k)=>v*(1-w)+frames[lo+1][i][k]*w);}
+function draw(){
+ const bounds=canvas.getBoundingClientRect(),w=bounds.width,h=bounds.height,dpr=window.devicePixelRatio||1;if(!w||!h)return;
+ canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const styles=getComputedStyle(root),fg=styles.getPropertyValue('--foreground').trim()||styles.color,accent=styles.getPropertyValue('--viz-series-1').trim()||fg;
+ const d=data[material],scale=Math.min(w,h)*.39*zoom;
+ const current=d.x0.map((p,i)=>{
+  let pos,vel;
+  if(mode==='truth'){const q=time*time*(3-2*time);pos=p.map((v,k)=>v+q*d.delta[i][k]+time*(1-time)*d.arc[i][k]);vel=p.map((_,k)=>6*time*(1-time)*d.delta[i][k]+(1-2*time)*d.arc[i][k]);}
+  else {pos=interpolate(d.positions,i,time);vel=interpolate(d.velocities,i,time);}
+  const r=rotate(pos);return {i,pos,vel,x:w/2+r[0]*scale,y:h/2-r[1]*scale,z:r[2]};
+ });
+ for(let i=0;i<d.background.length;i++){const pos=d.background[i],r=rotate(pos);current.push({i:-1,bg:i,pos,vel:[0,0,0],x:w/2+r[0]*scale,y:h/2-r[1]*scale,z:r[2]});}
+ current.sort((a,b)=>a.z-b.z);
+ for(const p of current){ctx.fillStyle=`rgb(${(p.i<0?d.background_rgb[p.bg]:d.rgb[p.i]).join(',')})`;ctx.beginPath();ctx.arc(p.x,p.y,2,0,Math.PI*2);ctx.fill();}
+ if(vectors){ctx.strokeStyle=accent;ctx.lineWidth=1.2;for(const p of current){if(p.i%4!==0||Math.hypot(...p.vel)<.015)continue;const end=rotate(p.pos.map((v,k)=>v+.24*p.vel[k])),x=w/2+end[0]*scale,y=h/2-end[1]*scale;const angle=Math.atan2(y-p.y,x-p.x);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(x,y);ctx.moveTo(x-4*Math.cos(angle-.45),y-4*Math.sin(angle-.45));ctx.lineTo(x,y);ctx.lineTo(x-4*Math.cos(angle+.45),y-4*Math.sin(angle+.45));ctx.stroke();}}
+ ctx.fillStyle=fg;ctx.strokeStyle=fg;ctx.font=styles.font;
+ for(const [label,v]of [['X',[1,0,0]],['Z',[0,1,0]],['−Y',[0,0,1]]]){const p=rotate(v);ctx.beginPath();ctx.moveTo(45,h-45);ctx.lineTo(45+p[0]*28,h-45-p[1]*28);ctx.stroke();ctx.fillText(label,45+p[0]*38,h-45-p[1]*38);}
+}
+restore(window.openai?.widgetState);sync();draw();
+for(const key of ['material','mode'])get(key).addEventListener('change',e=>{if(key==='material')material=e.target.value;else mode=e.target.value;sync();draw();save();});
+get('vectors').addEventListener('change',e=>{vectors=e.target.checked;draw();save();});
+for(const key of ['time','yaw','pitch','zoom']){get(key).addEventListener('input',e=>{const v=Number(e.target.value);if(key==='time')time=v;if(key==='yaw')yaw=v;if(key==='pitch')pitch=v;if(key==='zoom')zoom=v;sync();draw();});get(key).addEventListener('change',save);}
+let drag=null;canvas.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;yaw=((yaw+(e.clientX-drag[0])*.5+540)%360)-180;pitch=clamp(pitch+(e.clientY-drag[1])*.5,-90,90);drag=[e.clientX,e.clientY];sync();draw();});
+for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,()=>{if(drag)save();drag=null;});
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom*Math.exp(-e.deltaY*.001),.5,3);sync();draw();save();},{passive:false});
+new ResizeObserver(draw).observe(canvas);
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['class','style','data-theme']});
+window.addEventListener('openai:set_globals',e=>{if(e.detail?.globals?.widgetState){restore(e.detail.globals.widgetState);sync();draw();}});
+})();
+</script>

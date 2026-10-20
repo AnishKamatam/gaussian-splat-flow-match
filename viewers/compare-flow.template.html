@@ -1,0 +1,59 @@
+<div id="compare-quarry-flow">
+  <h3>Before, true after, and model prediction</h3>
+  <div class="viz-controls">
+    <label class="form-label">Material<select class="form-select" id="cq-material"><option value="basalt">Basalt style</option><option value="limestone" selected>Limestone style</option><option value="sandstone">Sandstone style</option></select></label>
+    <label class="form-check"><input class="form-check-input" id="cq-highlight" type="checkbox" checked><span class="form-check-label">Highlight known moving points</span></label>
+  </div>
+  <div class="cq-panels">
+    <section><h3>Before · t = 0</h3><canvas id="cq-before" role="img" aria-label="Before cloud, drag to rotate all three views."></canvas></section>
+    <section><h3>True after · t = 1</h3><canvas id="cq-truth" role="img" aria-label="Ground-truth after cloud, drag to rotate all three views."></canvas></section>
+    <section><h3>Model prediction · t = 1</h3><canvas id="cq-predicted" role="img" aria-label="Learned model after cloud, drag to rotate all three views."></canvas></section>
+  </div>
+  <div class="viz-controls">
+    <label class="form-label">Shared rotation<input class="form-range" id="cq-yaw" type="range" min="-180" max="180" value="25"></label>
+    <label class="form-label">Shared tilt<input class="form-range" id="cq-pitch" type="range" min="-90" max="90" value="35"></label>
+    <label class="form-label">Shared zoom<input class="form-range" id="cq-zoom" type="range" min="0.5" max="3" step="0.05" value="1"></label>
+  </div>
+  <div id="cq-metric" aria-live="polite"></div>
+  <div class="text-small text-muted">Drag any cloud to rotate all three · scroll to zoom · same point IDs, coordinates, and scale across panels.</div>
+  <div class="text-small text-muted">Synthetic held-out scenes with supplied collapse conditions, not measured quarry motion. Source: GPU experiment v2, October 20, 2026. Preview: 3,000 of 12,000 points per scene; dimensionless units.</div>
+</div>
+<style>
+#compare-quarry-flow .cq-panels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0;}
+#compare-quarry-flow .cq-panels section{min-width:0;}
+#compare-quarry-flow canvas{display:block;width:100%;height:300px;touch-action:none;cursor:grab;}
+#compare-quarry-flow canvas:active{cursor:grabbing;}
+#compare-quarry-flow #cq-metric{margin:12px 0;}
+@media(max-width:650px){#compare-quarry-flow .cq-panels{grid-template-columns:1fr;}#compare-quarry-flow canvas{height:280px;}}
+</style>
+<script>
+(()=>{
+const data=__COMPARE_DATA__;
+const root=document.getElementById('compare-quarry-flow'),get=id=>root.querySelector('#cq-'+id),canvases=['before','truth','predicted'].map(get);
+let material='limestone',yaw=data.limestone.yaw,pitch=35,zoom=1,highlight=true;
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+function restore(s){const m=s?.modelContent,p=s?.privateContent;if(m&&data[m.material])material=m.material;if(p){if(Number.isFinite(p.yaw))yaw=clamp(p.yaw,-180,180);if(Number.isFinite(p.pitch))pitch=clamp(p.pitch,-90,90);if(Number.isFinite(p.zoom))zoom=clamp(p.zoom,.5,3);if(typeof p.highlight==='boolean')highlight=p.highlight;}}
+function save(){window.openai?.setWidgetState?.({modelContent:{material},privateContent:{yaw,pitch,zoom,highlight}})?.catch(()=>{});}
+function sync(){get('material').value=material;get('highlight').checked=highlight;for(const [k,v]of Object.entries({yaw,pitch,zoom}))get(k).value=v;const d=data[material];get('metric').textContent=d.name+' · held-out seed '+d.seed+' · moving-point prediction error '+d.error.toFixed(4)+' vs '+d.baseline.toFixed(4)+' for no motion ('+d.improvement.toFixed(1)+'% lower).';}
+function rotate(p){const [x,y,z]=p,a=yaw*Math.PI/180,b=pitch*Math.PI/180,X=x*Math.cos(a)+z*Math.sin(a),Z=-x*Math.sin(a)+z*Math.cos(a);return [X,y*Math.cos(b)-Z*Math.sin(b),y*Math.sin(b)+Z*Math.cos(b)];}
+function draw(){const d=data[material],styles=getComputedStyle(root),fg=styles.getPropertyValue('--foreground').trim()||styles.color,accent=styles.getPropertyValue('--viz-series-1').trim()||fg;
+ for(let view=0;view<3;view++){
+  const canvas=canvases[view],ctx=canvas.getContext('2d'),rect=canvas.getBoundingClientRect(),w=rect.width,h=rect.height,dpr=window.devicePixelRatio||1;if(!w||!h)continue;
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  const points=view===0?d.before:view===1?d.after:d.predicted,scale=Math.min(w,h)*.41*zoom;
+  const sorted=points.map((p,i)=>{const r=rotate(p);return {i,x:w/2+r[0]*scale,y:h/2-r[1]*scale,z:r[2]};}).sort((a,b)=>a.z-b.z);
+  for(const p of sorted){ctx.fillStyle=highlight&&d.moving[p.i]?accent:`rgb(${d.rgb[p.i].join(',')})`;ctx.beginPath();ctx.arc(p.x,p.y,highlight&&d.moving[p.i]?1.8:1.35,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle=fg;ctx.strokeStyle=fg;ctx.font=styles.font;
+  for(const [label,v]of [['X',[1,0,0]],['Z',[0,1,0]],['−Y',[0,0,1]]]){const q=rotate(v);ctx.beginPath();ctx.moveTo(34,h-36);ctx.lineTo(34+q[0]*20,h-36-q[1]*20);ctx.stroke();ctx.fillText(label,34+q[0]*29,h-36-q[1]*29);}
+ }
+}
+restore(window.openai?.widgetState);sync();draw();
+get('material').addEventListener('change',e=>{material=e.target.value;sync();draw();save();});
+get('highlight').addEventListener('change',e=>{highlight=e.target.checked;draw();save();});
+for(const key of ['yaw','pitch','zoom']){get(key).addEventListener('input',e=>{const v=Number(e.target.value);if(key==='yaw')yaw=v;if(key==='pitch')pitch=v;if(key==='zoom')zoom=v;sync();draw();});get(key).addEventListener('change',save);}
+let drag=null;
+for(const canvas of canvases){canvas.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(!drag)return;yaw=((yaw+(e.clientX-drag[0])*.5+540)%360)-180;pitch=clamp(pitch+(e.clientY-drag[1])*.5,-90,90);drag=[e.clientX,e.clientY];sync();draw();});for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,()=>{if(drag)save();drag=null;});canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom*Math.exp(-e.deltaY*.001),.5,3);sync();draw();save();},{passive:false});new ResizeObserver(draw).observe(canvas);}
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['class','style','data-theme']});
+window.addEventListener('openai:set_globals',e=>{if(e.detail?.globals?.widgetState){restore(e.detail.globals.widgetState);sync();draw();}});
+})();
+</script>

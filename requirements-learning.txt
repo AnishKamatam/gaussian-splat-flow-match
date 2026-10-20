@@ -1,0 +1,4 @@
+# Install a CUDA-compatible PyTorch build on the GPU host.
+numpy>=2.0,<3
+torch>=2.8,<3
+Pillow>=11,<13

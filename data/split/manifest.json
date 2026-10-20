@@ -1,0 +1,785 @@
+{
+  "note": "Crops preserve source pixels; 30px label strip removed. View numbers are sheet order, not verified camera correspondences. Source sheets describe AI-generated concept views with geometric consistency not guaranteed.",
+  "images": [
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/01.png",
+      "view": 1,
+      "crop_box": [
+        6,
+        43,
+        339,
+        434
+      ],
+      "width": 333,
+      "height": 391
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/02.png",
+      "view": 2,
+      "crop_box": [
+        350,
+        43,
+        684,
+        434
+      ],
+      "width": 334,
+      "height": 391
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/03.png",
+      "view": 3,
+      "crop_box": [
+        693,
+        43,
+        1026,
+        434
+      ],
+      "width": 333,
+      "height": 391
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/04.png",
+      "view": 4,
+      "crop_box": [
+        1036,
+        43,
+        1370,
+        434
+      ],
+      "width": 334,
+      "height": 391
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/05.png",
+      "view": 5,
+      "crop_box": [
+        1380,
+        43,
+        1713,
+        434
+      ],
+      "width": 333,
+      "height": 391
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/06.png",
+      "view": 6,
+      "crop_box": [
+        6,
+        469,
+        339,
+        857
+      ],
+      "width": 333,
+      "height": 388
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/07.png",
+      "view": 7,
+      "crop_box": [
+        350,
+        469,
+        684,
+        857
+      ],
+      "width": 334,
+      "height": 388
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/08.png",
+      "view": 8,
+      "crop_box": [
+        693,
+        469,
+        1026,
+        857
+      ],
+      "width": 333,
+      "height": 388
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/09.png",
+      "view": 9,
+      "crop_box": [
+        1036,
+        469,
+        1370,
+        857
+      ],
+      "width": 334,
+      "height": 388
+    },
+    {
+      "source": "data/basaltbefore.png",
+      "output": "data/split/basalt/before/images/10.png",
+      "view": 10,
+      "crop_box": [
+        1380,
+        469,
+        1713,
+        857
+      ],
+      "width": 333,
+      "height": 388
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/01.png",
+      "view": 1,
+      "crop_box": [
+        0,
+        78,
+        340,
+        467
+      ],
+      "width": 340,
+      "height": 389
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/02.png",
+      "view": 2,
+      "crop_box": [
+        350,
+        78,
+        684,
+        467
+      ],
+      "width": 334,
+      "height": 389
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/03.png",
+      "view": 3,
+      "crop_box": [
+        693,
+        78,
+        1026,
+        467
+      ],
+      "width": 333,
+      "height": 389
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/04.png",
+      "view": 4,
+      "crop_box": [
+        1036,
+        78,
+        1369,
+        467
+      ],
+      "width": 333,
+      "height": 389
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/05.png",
+      "view": 5,
+      "crop_box": [
+        1379,
+        78,
+        1717,
+        467
+      ],
+      "width": 338,
+      "height": 389
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/06.png",
+      "view": 6,
+      "crop_box": [
+        0,
+        504,
+        340,
+        884
+      ],
+      "width": 340,
+      "height": 380
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/07.png",
+      "view": 7,
+      "crop_box": [
+        350,
+        504,
+        684,
+        884
+      ],
+      "width": 334,
+      "height": 380
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/08.png",
+      "view": 8,
+      "crop_box": [
+        693,
+        504,
+        1026,
+        884
+      ],
+      "width": 333,
+      "height": 380
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/09.png",
+      "view": 9,
+      "crop_box": [
+        1036,
+        504,
+        1369,
+        884
+      ],
+      "width": 333,
+      "height": 380
+    },
+    {
+      "source": "data/basaltafter.png",
+      "output": "data/split/basalt/after/images/10.png",
+      "view": 10,
+      "crop_box": [
+        1379,
+        504,
+        1717,
+        884
+      ],
+      "width": 338,
+      "height": 380
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/01.png",
+      "view": 1,
+      "crop_box": [
+        5,
+        68,
+        339,
+        460
+      ],
+      "width": 334,
+      "height": 392
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/02.png",
+      "view": 2,
+      "crop_box": [
+        350,
+        68,
+        684,
+        460
+      ],
+      "width": 334,
+      "height": 392
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/03.png",
+      "view": 3,
+      "crop_box": [
+        693,
+        68,
+        1027,
+        460
+      ],
+      "width": 334,
+      "height": 392
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/04.png",
+      "view": 4,
+      "crop_box": [
+        1035,
+        68,
+        1369,
+        460
+      ],
+      "width": 334,
+      "height": 392
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/05.png",
+      "view": 5,
+      "crop_box": [
+        1379,
+        68,
+        1712,
+        460
+      ],
+      "width": 333,
+      "height": 392
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/06.png",
+      "view": 6,
+      "crop_box": [
+        5,
+        497,
+        339,
+        887
+      ],
+      "width": 334,
+      "height": 390
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/07.png",
+      "view": 7,
+      "crop_box": [
+        350,
+        497,
+        684,
+        887
+      ],
+      "width": 334,
+      "height": 390
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/08.png",
+      "view": 8,
+      "crop_box": [
+        693,
+        497,
+        1027,
+        887
+      ],
+      "width": 334,
+      "height": 390
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/09.png",
+      "view": 9,
+      "crop_box": [
+        1035,
+        497,
+        1369,
+        887
+      ],
+      "width": 334,
+      "height": 390
+    },
+    {
+      "source": "data/limestonebefore.png",
+      "output": "data/split/limestone/before/images/10.png",
+      "view": 10,
+      "crop_box": [
+        1379,
+        497,
+        1712,
+        887
+      ],
+      "width": 333,
+      "height": 390
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/01.png",
+      "view": 1,
+      "crop_box": [
+        8,
+        70,
+        338,
+        454
+      ],
+      "width": 330,
+      "height": 384
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/02.png",
+      "view": 2,
+      "crop_box": [
+        351,
+        70,
+        683,
+        454
+      ],
+      "width": 332,
+      "height": 384
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/03.png",
+      "view": 3,
+      "crop_box": [
+        694,
+        70,
+        1025,
+        454
+      ],
+      "width": 331,
+      "height": 384
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/04.png",
+      "view": 4,
+      "crop_box": [
+        1036,
+        70,
+        1367,
+        454
+      ],
+      "width": 331,
+      "height": 384
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/05.png",
+      "view": 5,
+      "crop_box": [
+        1379,
+        70,
+        1709,
+        454
+      ],
+      "width": 330,
+      "height": 384
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/06.png",
+      "view": 6,
+      "crop_box": [
+        8,
+        494,
+        338,
+        881
+      ],
+      "width": 330,
+      "height": 387
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/07.png",
+      "view": 7,
+      "crop_box": [
+        351,
+        494,
+        683,
+        881
+      ],
+      "width": 332,
+      "height": 387
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/08.png",
+      "view": 8,
+      "crop_box": [
+        694,
+        494,
+        1025,
+        881
+      ],
+      "width": 331,
+      "height": 387
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/09.png",
+      "view": 9,
+      "crop_box": [
+        1036,
+        494,
+        1367,
+        881
+      ],
+      "width": 331,
+      "height": 387
+    },
+    {
+      "source": "data/limestoneafter.png",
+      "output": "data/split/limestone/after/images/10.png",
+      "view": 10,
+      "crop_box": [
+        1379,
+        494,
+        1709,
+        881
+      ],
+      "width": 330,
+      "height": 387
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/01.png",
+      "view": 1,
+      "crop_box": [
+        0,
+        47,
+        338,
+        438
+      ],
+      "width": 338,
+      "height": 391
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/02.png",
+      "view": 2,
+      "crop_box": [
+        344,
+        47,
+        684,
+        438
+      ],
+      "width": 340,
+      "height": 391
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/03.png",
+      "view": 3,
+      "crop_box": [
+        690,
+        47,
+        1029,
+        438
+      ],
+      "width": 339,
+      "height": 391
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/04.png",
+      "view": 4,
+      "crop_box": [
+        1035,
+        47,
+        1376,
+        438
+      ],
+      "width": 341,
+      "height": 391
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/05.png",
+      "view": 5,
+      "crop_box": [
+        1381,
+        47,
+        1717,
+        438
+      ],
+      "width": 336,
+      "height": 391
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/06.png",
+      "view": 6,
+      "crop_box": [
+        0,
+        473,
+        338,
+        856
+      ],
+      "width": 338,
+      "height": 383
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/07.png",
+      "view": 7,
+      "crop_box": [
+        344,
+        473,
+        684,
+        856
+      ],
+      "width": 340,
+      "height": 383
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/08.png",
+      "view": 8,
+      "crop_box": [
+        690,
+        473,
+        1029,
+        856
+      ],
+      "width": 339,
+      "height": 383
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/09.png",
+      "view": 9,
+      "crop_box": [
+        1035,
+        473,
+        1376,
+        856
+      ],
+      "width": 341,
+      "height": 383
+    },
+    {
+      "source": "data/sandstonebefore.png",
+      "output": "data/split/sandstone/before/images/10.png",
+      "view": 10,
+      "crop_box": [
+        1381,
+        473,
+        1717,
+        856
+      ],
+      "width": 336,
+      "height": 383
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/01.png",
+      "view": 1,
+      "crop_box": [
+        2,
+        44,
+        339,
+        439
+      ],
+      "width": 337,
+      "height": 395
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/02.png",
+      "view": 2,
+      "crop_box": [
+        345,
+        44,
+        684,
+        439
+      ],
+      "width": 339,
+      "height": 395
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/03.png",
+      "view": 3,
+      "crop_box": [
+        690,
+        44,
+        1028,
+        439
+      ],
+      "width": 338,
+      "height": 395
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/04.png",
+      "view": 4,
+      "crop_box": [
+        1034,
+        44,
+        1372,
+        439
+      ],
+      "width": 338,
+      "height": 395
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/05.png",
+      "view": 5,
+      "crop_box": [
+        1379,
+        44,
+        1714,
+        439
+      ],
+      "width": 335,
+      "height": 395
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/06.png",
+      "view": 6,
+      "crop_box": [
+        2,
+        474,
+        339,
+        857
+      ],
+      "width": 337,
+      "height": 383
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/07.png",
+      "view": 7,
+      "crop_box": [
+        345,
+        474,
+        684,
+        857
+      ],
+      "width": 339,
+      "height": 383
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/08.png",
+      "view": 8,
+      "crop_box": [
+        690,
+        474,
+        1028,
+        857
+      ],
+      "width": 338,
+      "height": 383
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/09.png",
+      "view": 9,
+      "crop_box": [
+        1034,
+        474,
+        1372,
+        857
+      ],
+      "width": 338,
+      "height": 383
+    },
+    {
+      "source": "data/sandstoneafter.png",
+      "output": "data/split/sandstone/after/images/10.png",
+      "view": 10,
+      "crop_box": [
+        1379,
+        474,
+        1714,
+        857
+      ],
+      "width": 335,
+      "height": 383
+    }
+  ]
+}
