@@ -53,7 +53,7 @@ def main():
     fontpath = '/System/Library/Fonts/Supplemental/Arial.ttf'
     def font(size):
         return ImageFont.truetype(fontpath, size)
-    d.text((30, 20), 'COLMAP ' + ('dense' if args.dense else 'sparse') + ' point clouds — AFTER sets', font=font(30), fill='#f0f4fa')
+    d.text((30, 20), 'COLMAP ' + ('dense' if args.dense else 'sparse') + ' point clouds', font=font(30), fill='#f0f4fa')
     d.text((30, 63), 'Actual reconstructed points • orthographic projections • original RGB colors • no surfaces or interpolation', font=font(18), fill='#bac7d8')
     d.text((30, 94), 'Each cloud centered and rotated to its own PCA axes. Arbitrary units; rows are not spatially aligned.', font=font(18), fill='#bac7d8')
     axes = [(0, 1, 2, 'Principal axes 1 / 2'), (0, 2, 1, 'Principal axes 1 / 3'), (1, 2, 0, 'Principal axes 2 / 3')]
@@ -65,7 +65,7 @@ def main():
         coords -= (coords.min(axis=0) + coords.max(axis=0)) / 2
         scale = 320 / max(np.ptp(coords, axis=0).max(), 1e-12)
         y = 145 + row * 475
-        title = f"{result['material'].capitalize()} / {result['state']}     {result['registered_images']}/10 cameras     {len(xyz):,} points"
+        title = f"{result['material'].capitalize()} / {result['state']}     {result['registered_images']}/{result.get('input_images', 10)} cameras     {len(xyz):,} points"
         d.text((30, y), title, font=font(23), fill='#f0f4fa')
         for col, (a, b, depth, label) in enumerate(axes):
             left, top = 30 + col * 510, y + 42
@@ -74,7 +74,8 @@ def main():
                 px = left + 245 + coords[i, a] * scale
                 py = top + 195 - coords[i, b] * scale
                 color = tuple(int(v) for v in rgb[i])
-                d.ellipse((px-2.5, py-2.5, px+2.5, py+2.5), fill=color, outline='#8b99a8', width=1)
+                radius = 2.5 if len(xyz) < 1000 else 0.65
+                d.ellipse((px-radius, py-radius, px+radius, py+radius), fill=color)
             d.text((left + 12, top + 365), label + ' (arbitrary units)', font=font(16), fill='#bac7d8')
     out = args.run / 'renders'
     out.mkdir(exist_ok=True)
