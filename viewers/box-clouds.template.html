@@ -1,0 +1,67 @@
+<div id="box-cloud-explorer">
+  <h2>Box point clouds · correspondence and motion</h2>
+  <div class="viz-controls">
+    <button class="btn" id="bc-top" type="button">Top view</button>
+    <button class="btn" id="bc-angle" type="button">Angled view</button>
+    <label class="form-label">Point size<input class="form-range" id="bc-size" type="range" min="1" max="5" value="2" step="0.25"></label>
+    <label class="form-label">Zoom<input class="form-range" id="bc-zoom" type="range" min="0.5" max="4" value="1" step="0.05"></label>
+  </div>
+  <div class="viz-controls">
+    <label class="form-label">Right panel<select class="form-select" id="bc-mode"><option value="observed">Observed after</option><option value="motion">Endpoint motion hypothesis</option></select></label>
+    <label class="form-label">Normalized time <span id="bc-timevalue">0.00</span><input class="form-range" id="bc-time" type="range" min="0" max="1" value="0" step="0.01" disabled></label>
+    <label class="form-check"><input class="form-check-input" id="bc-ids" type="checkbox"><span class="form-check-label">Show fitted center IDs</span></label>
+    <label class="form-label">Inspect match<select class="form-select" id="bc-match"><option value="-1">All balls</option></select></label>
+  </div>
+  <div id="bc-detail" class="text-small" aria-live="polite"></div>
+  <div class="bc-panes">
+    <section><h3>Before <span id="bc-count0" class="text-small text-muted"></span></h3><div class="bc-scene"><canvas id="bc-canvas0" role="img" aria-label="Interactive before point cloud. Drag to rotate, shift drag to pan, scroll to zoom."></canvas><svg id="bc-label0" aria-hidden="true"></svg></div></section>
+    <section><h3><span id="bc-righttitle">After</span> <span id="bc-count1" class="text-small text-muted"></span></h3><div class="bc-scene"><canvas id="bc-canvas1" role="img" aria-label="Interactive after point cloud. Drag to rotate, shift drag to pan, scroll to zoom."></canvas><svg id="bc-label1" aria-hidden="true"></svg></div></section>
+  </div>
+  <div id="bc-caption" class="text-small text-muted"></div>
+  <div class="text-small text-muted">Drag to orbit · shift-drag to pan · scroll to zoom · X / Y / Z coordinates use arbitrary reconstruction units.</div>
+  <div id="bc-error" role="alert"></div>
+</div>
+<style>
+#box-cloud-explorer .bc-panes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0}
+#box-cloud-explorer .bc-scene{position:relative;height:430px}
+#box-cloud-explorer canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#box-cloud-explorer canvas:active{cursor:grabbing}
+#box-cloud-explorer .bc-scene svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#box-cloud-explorer section{min-width:0}
+@media(max-width:600px){#box-cloud-explorer .bc-panes{grid-template-columns:1fr}#box-cloud-explorer .bc-scene{height:340px}}
+</style>
+<script>
+(()=>{
+const data=__BOX_DATA__;
+const root=document.getElementById('box-cloud-explorer'), get=id=>root.querySelector('#bc-'+id);
+let yaw=0,pitch=0,zoom=1,size=2,pan=[0,0],drag=null,mode="observed",time=0,showIds=false,selected=-1;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function unpack(s){const raw=Uint8Array.from(atob(s),c=>c.charCodeAt(0)),view=new DataView(raw.buffer),out=new Float32Array(raw.length/10*6),labels=new Uint8Array(raw.length/10);for(let i=0,j=0;i<raw.length;i+=10,j+=6){for(let k=0;k<3;k++){out[j+k]=view.getInt16(i+k*2,true)/10000;out[j+k+3]=raw[i+6+k]/255;}labels[i/10]=raw[i+9];}return {points:out,labels};}
+const decoded=data.clouds.map(c=>unpack(c.packed));
+function motionPoints(){const result=decoded[0].points.slice(),q=10*time**3-15*time**4+6*time**5;for(let i=0;i<decoded[0].labels.length;i++){let id=decoded[0].labels[i]-1;if(id<0)continue;let a=data.balls.before[id].center,b=data.balls.after[data.matches[id].target].center;for(let k=0;k<3;k++)result[i*6+k]+=q*(b[k]-a[k]);}return result;}
+const vertex=`attribute vec3 p;attribute vec3 color;uniform vec4 camera;uniform vec3 view;uniform vec2 pan;varying vec3 rgb;void main(){float a=camera.x,b=camera.y;vec3 q=vec3(p.x*cos(a)-p.y*sin(a),p.x*sin(a)+p.y*cos(a),p.z);vec3 r=vec3(q.x,q.y*cos(b)-q.z*sin(b),q.y*sin(b)+q.z*cos(b));gl_Position=vec4(r.x*camera.z/view.x+pan.x,r.y*camera.z+pan.y,-r.z*.2,1.);gl_PointSize=camera.w*view.y;rgb=color;}`;
+const fragment=`precision mediump float;varying vec3 rgb;void main(){if(length(gl_PointCoord-vec2(.5))>.5)discard;gl_FragColor=vec4(rgb,1.);}`;
+function scene(i){const canvas=get('canvas'+i),gl=canvas.getContext('webgl',{alpha:true,antialias:true,preserveDrawingBuffer:true});if(!gl)throw Error('WebGL is unavailable in this browser.');function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vertex));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fragment));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);const points=decoded[i].points,buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,points,gl.STATIC_DRAW);for(const [name,offset]of [['p',0],['color',12]]){let loc=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,3,gl.FLOAT,false,24,offset);}gl.enable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);
+return {canvas,gl,program,buffer,count:points.length/6,loc:{camera:gl.getUniformLocation(program,'camera'),view:gl.getUniformLocation(program,'view'),pan:gl.getUniformLocation(program,'pan')}};}
+let scenes;try{scenes=[scene(0),scene(1)];}catch(e){get('error').textContent=e.message;return;}
+function project(p,w,h){const x=p[0]*Math.cos(yaw)-p[1]*Math.sin(yaw),y=p[0]*Math.sin(yaw)+p[1]*Math.cos(yaw),z=p[2];return [w/2+(x*zoom/(w/h)+pan[0])*w/2,h/2-( (y*Math.cos(pitch)-z*Math.sin(pitch))*zoom+pan[1])*h/2];}
+function draw(){get('timevalue').textContent=time.toFixed(2);get('righttitle').textContent=mode==='motion'?'Motion hypothesis':'After';get('count1').textContent=mode==='motion'?'translated before samples':data.clouds[1].total.toLocaleString()+' points';get('time').disabled=mode!=='motion';
+const m=selected>=0?data.matches[selected]:null;get('detail').textContent=m?`${data.balls.before[selected].id} → ${data.balls.after[m.target].id} · displacement ${m.distance.toFixed(3)} reconstruction units · alternative ${data.balls.after[m.alternative_target]?.id||'none'} · identity unverified`:(mode==='motion'?`Endpoint interpolation only · ${data.collisionCount} potential overlap pairs · no physical timing or rotation`:'Shared box coordinates · select a ball to inspect its proposed match');
+const right=mode==='motion'?motionPoints():decoded[1].points;scenes[1].gl.bindBuffer(scenes[1].gl.ARRAY_BUFFER,scenes[1].buffer);scenes[1].gl.bufferData(scenes[1].gl.ARRAY_BUFFER,right,scenes[1].gl.DYNAMIC_DRAW);scenes[1].count=right.length/6;
+scenes.forEach((s,i)=>{const r=s.canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);s.canvas.width=Math.round(r.width*dpr);s.canvas.height=Math.round(r.height*dpr);s.gl.viewport(0,0,s.canvas.width,s.canvas.height);s.gl.useProgram(s.program);s.gl.clear(s.gl.COLOR_BUFFER_BIT|s.gl.DEPTH_BUFFER_BIT);s.gl.uniform4f(s.loc.camera,yaw,pitch,zoom,size);s.gl.uniform3f(s.loc.view,r.width/r.height,dpr,0);s.gl.uniform2f(s.loc.pan,...pan);s.gl.drawArrays(s.gl.POINTS,0,s.count);const svg=get('label'+i);svg.setAttribute('viewBox',`0 0 ${r.width} ${r.height}`);svg.replaceChildren();
+const states=i===0?data.balls.before:data.balls.after;
+function mark(point,label,active){const xy=project(point,r.width,r.height);const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('cx',xy[0]);circle.setAttribute('cy',xy[1]);circle.setAttribute('r',active?7:3);circle.setAttribute('fill','none');circle.setAttribute('stroke','var(--foreground)');svg.append(circle);if(showIds||active){const text=document.createElementNS('http://www.w3.org/2000/svg','text');text.setAttribute('x',xy[0]+8);text.setAttribute('y',xy[1]-8);text.setAttribute('fill','var(--foreground)');text.setAttribute('font-size','12');text.textContent=label;svg.append(text);}}
+if(showIds||selected>=0){if(i===1&&mode==='motion'){const q=10*time**3-15*time**4+6*time**5;data.balls.before.forEach((b,j)=>{if(!showIds&&j!==selected)return;const target=data.balls.after[data.matches[j].target];mark(b.center.map((v,k)=>v+q*(target.center[k]-v)),b.id+'?',j===selected);});}else states.forEach((b,j)=>{const active=i===0?j===selected:selected>=0&&j===data.matches[selected].target;if(showIds||active)mark(b.center,b.id,active);});}
+for(const [name,p]of [['X',[.2,0,0]],['Y',[0,.2,0]],['Z',[0,0,.2]]]){const base=project([0,0,0],r.width,r.height),q=project(p,r.width,r.height),dx=q[0]-base[0],dy=q[1]-base[1];const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1','35');line.setAttribute('y1',r.height-38);line.setAttribute('x2',35+dx/zoom*.6);line.setAttribute('y2',r.height-38+dy/zoom*.6);line.setAttribute('stroke','var(--foreground)');svg.append(line);const text=document.createElementNS('http://www.w3.org/2000/svg','text');text.setAttribute('x',35+dx/zoom*.75);text.setAttribute('y',r.height-38+dy/zoom*.75);text.setAttribute('fill','var(--foreground)');text.setAttribute('font-size','12');text.textContent=name;svg.append(text);}});}
+function sync(){get('zoom').value=zoom;get('size').value=size;get('mode').value=mode;get('time').value=time;get('ids').checked=showIds;get('match').value=selected;}
+function save(){window.openai?.setWidgetState?.({modelContent:{view:'point-cloud comparison'},privateContent:{yaw,pitch,zoom,size,pan,mode,time,showIds,selected}})?.catch(()=>{});}
+function restore(s){const p=s?.privateContent;if(!p)return;mode=p.mode==='motion'?'motion':'observed';time=clamp(Number(p.time)||0,0,1);showIds=!!p.showIds;selected=Number.isInteger(p.selected)&&p.selected>=0&&p.selected<14?p.selected:-1;for(const k of ['yaw','pitch','zoom','size'])if(!Number.isFinite(p[k]))return;yaw=p.yaw;pitch=p.pitch;zoom=clamp(p.zoom,.5,4);size=clamp(p.size,1,5);if(Array.isArray(p.pan)&&p.pan.length===2&&p.pan.every(Number.isFinite))pan=p.pan;}
+data.matches.forEach((m,i)=>{const option=document.createElement('option');option.value=i;option.textContent=data.balls.before[i].id+' → '+data.balls.after[m.target].id+' ?';get('match').append(option);});
+get('mode').onchange=e=>{mode=e.target.value;draw();save();};get('time').oninput=e=>{time=+e.target.value;draw();};get('time').onchange=save;get('ids').onchange=e=>{showIds=e.target.checked;draw();save();};get('match').onchange=e=>{selected=+e.target.value;draw();save();};
+restore(window.openai?.widgetState);for(let i=0;i<2;i++)get('count'+i).textContent=data.clouds[i].total.toLocaleString()+' points';get('caption').textContent=data.caption;
+get('top').onclick=()=>{yaw=0;pitch=0;pan=[0,0];draw();save();};get('angle').onclick=()=>{yaw=-.15;pitch=.9;pan=[0,0];draw();save();};get('zoom').oninput=e=>{zoom=+e.target.value;draw();};get('size').oninput=e=>{size=+e.target.value;draw();};for(const k of ['zoom','size'])get(k).onchange=save;
+for(const s of scenes){const c=s.canvas;c.onpointerdown=e=>{drag=[e.clientX,e.clientY,e.shiftKey];c.setPointerCapture(e.pointerId);};c.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag[0],dy=e.clientY-drag[1];if(drag[2]){pan[0]+=dx/c.clientWidth*2;pan[1]-=dy/c.clientHeight*2;}else{yaw+=dx*.007;pitch=clamp(pitch+dy*.007,-Math.PI,Math.PI);}drag=[e.clientX,e.clientY,drag[2]];draw();};for(const event of ['pointerup','pointercancel','lostpointercapture'])c.addEventListener(event,()=>{if(drag)save();drag=null;});c.onwheel=e=>{e.preventDefault();zoom=clamp(zoom*Math.exp(-e.deltaY*.001),.5,4);sync();draw();save();};new ResizeObserver(draw).observe(c);}
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['class','style','data-theme']});window.addEventListener('openai:set_globals',e=>{restore(e.detail?.globals?.widgetState);sync();draw();});sync();draw();
+})();
+</script>

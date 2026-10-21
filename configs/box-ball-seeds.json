@@ -1,0 +1,6 @@
+{
+ "provenance":"Human-readable visual ROI annotations by assistant on reference photographs; coordinates refer to displayed 1367x1823 images. These are extraction seeds, not measured 3D centers or cross-state identities.",
+ "display_size":[1367,1823],
+ "before":{"image":"IMG_3261.jpg","circles":[[337,352,53,"white"],[468,362,52,"white"],[538,478,52,"white"],[436,806,49,"white"],[581,784,48,"white"],[333,885,49,"white"],[471,935,48,"white"],[575,893,47,"white"],[676,887,46,"orange"],[555,992,47,"white"],[223,1357,49,"white"],[481,1365,47,"white"],[589,1372,46,"orange"],[694,1354,46,"white"]]},
+ "after":{"image":"IMG_3265.jpg","circles":[[337,259,54,"white"],[449,278,53,"white"],[559,292,51,"orange"],[308,375,53,"white"],[380,468,51,"white"],[492,463,51,"white"],[615,732,48,"white"],[584,831,48,"white"],[687,849,47,"white"],[539,915,45,"orange"],[292,1261,47,"white"],[685,1278,46,"white"],[787,1283,46,"white"],[887,1287,46,"white"]]}
+}

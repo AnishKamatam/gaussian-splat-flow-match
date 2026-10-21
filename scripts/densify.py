@@ -36,7 +36,8 @@ def main():
         try:
             sparse = args.sparse_run / material / state / 'sparse'
             model, registered, points = best_model(sparse)
-            result.update(registered_images=registered, sparse_points=points)
+            result.update(registered_images=registered, sparse_points=points,
+                          input_images=source.get('input_images', 10))
             if registered < 3:
                 result.update(status='skipped', error='Fewer than three registered images')
             else:

@@ -1,3 +1,9 @@
+## Real box experiment (`data2`)
+
+For the five-view before/after photographs, see [the MV-RoMa reconstruction guide](docs/data2-mvroma.md).
+This pipeline uses MV-RoMa correspondences and COLMAP geometry independently for each state.
+The existing quarry and synthetic workflows below remain separate.
+
 # Before / after quarry point clouds
 
 Reconstruct basalt, limestone, and sandstone separately for both scene states.
@@ -143,3 +149,5 @@ See [SYNTHETIC_EXPERIMENT.md](SYNTHETIC_EXPERIMENT.md) for the controlled synthe
 benchmark, dataset generation, GPU training, evaluation, and limitations. This
 uses directly generated coherent geometry and persistent point IDs; it does not
 claim to recover physical motion from the image sheets.
+
+The aligned 3D comparison and first ball-correspondence/motion baseline are documented in [docs/data2-ball-motion.md](docs/data2-ball-motion.md). The interactive viewer is `outputs/box-clouds-3d.html`; correspondence identities and intermediate paths are hypotheses.
